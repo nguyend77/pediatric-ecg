@@ -10,4 +10,5 @@ df = df[df['Lead'] == 12]
 # drop records of less than 5000 sampling points (10s)
 df = df[df['Sampling_point'] >= 5000]
 df = df.drop(columns=['Sampling_point', 'Lead', 'ICD-10 code'])
+print(df['diagnosis'].value_counts())
 df.to_csv('ecg_data.csv', index=False)

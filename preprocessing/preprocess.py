@@ -14,8 +14,15 @@ def retrieve_mtf(address):
     # crop to first 5000 sampling points (10s)
     ecg = wfdb.rdsamp(path+address)[0][:5000, :]
     for lead in range(12):
-        # create a row vector from a 1D array and fit data to MTF
-        mtf = MarkovTransitionField(strategy='uniform').fit_transform(ecg[:, lead].reshape(1, -1))
+        # create a row vector from a 1D array and fit data to MTF, downscale data to 500 points
+        mtf = MarkovTransitionField(image_size=0.1, strategy='uniform').fit_transform(ecg[:, lead].reshape(1, -1))
         # output of fit_transform is (1, 5000, 5000), append first element to arr
         arr[0, :, :, lead] = mtf[0]
     return arr
+
+filename = df['Filename'].to_list()
+x_list = []
+for file in filename:
+    x_list.append(retrieve_mtf(file))
+X = np.vstack(x_list)
+np.save('X.npy', X)

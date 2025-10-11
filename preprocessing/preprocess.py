@@ -2,27 +2,29 @@ import numpy as np
 import pandas as pd
 import wfdb
 from pyts.image import MarkovTransitionField
+from tqdm import tqdm
 
-# pull data from GitHub repo
-df = pd.read_csv('https://raw.githubusercontent.com/nguyend77/pediatric-ecg/refs/heads/main/ecg_data.csv')
-
+df = pd.read_csv('ecg_data.csv')
 # path to Child_ecg folder
 path = 'data/Child_ecg/'
+# image size for MTF
+size = 512
 
 def retrieve_mtf(address):
-    arr = np.zeros((1, 512, 512, 12), dtype=np.float64)
-    # crop to first 5000 sampling points (10s)
+    # use float32 to save 50% memmory
+    arr = np.zeros((size, size, 12), dtype=np.float32)
+    # crop to first 8192 sampling points (2^13)
     ecg = wfdb.rdsamp(path+address)[0][:8192, :]
     for lead in range(12):
         # create a row vector from a 1D array and fit data to MTF, downscale data to 512 points
-        mtf = MarkovTransitionField(image_size=512, strategy='uniform').fit_transform(ecg[:, lead].reshape(1, -1))
-        # output of fit_transform is (1, 5000, 5000), append first element to arr
-        arr[0, :, :, lead] = mtf[0]
+        mtf = MarkovTransitionField(image_size=size, strategy='uniform').fit_transform(ecg[:, lead].reshape(1, -1))
+        # output of fit_transform is (1, 512, 512), append first element to arr
+        arr[:, :, lead] = mtf[0]
     return arr
 
 filename = df['Filename'].to_list()
-x_list = []
-for file in filename:
-    x_list.append(retrieve_mtf(file))
-X = np.vstack(x_list)
-np.save('X.npy', X)
+length = len(filename)
+X = np.memmap('X.npy', dtype=np.float32, mode='w+', shape=(length, size, size, 12))
+for i in tqdm(range(length)):
+    X[i] = retrieve_mtf(filename[i])
+X.flush()

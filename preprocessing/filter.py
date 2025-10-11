@@ -8,7 +8,7 @@ df['diagnosis'] = df['ICD-10 code'].str.contains(cardiovascular_disease).astype(
 # limit to 12 lead ECGs
 df = df[df['Lead'] == 12]
 # drop records of less than 5000 sampling points (10s)
-df = df[df['Sampling_point'] >= 5000]
+df = df[df['Sampling_point'] >= 8192]
 df = df.drop(columns=['Sampling_point', 'Lead', 'ICD-10 code'])
 print(df['diagnosis'].value_counts())
 df.to_csv('ecg_data.csv', index=False)

@@ -3,6 +3,9 @@ import pandas as pd
 import wfdb
 from pyts.image import MarkovTransitionField
 
+# pull data from GitHub repo
+df = pd.read_csv('https://raw.githubusercontent.com/nguyend77/pediatric-ecg/refs/heads/main/ecg_data.csv')
+
 # path to Child_ecg folder
 path = 'data/Child_ecg/'
 

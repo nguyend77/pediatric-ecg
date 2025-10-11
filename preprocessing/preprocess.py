@@ -13,8 +13,8 @@ size = 512
 def retrieve_mtf(address):
     # use float32 to save 50% memmory
     arr = np.zeros((size, size, 12), dtype=np.float32)
-    # crop to first 8192 sampling points (2^13)
-    ecg = wfdb.rdsamp(path+address)[0][:8192, :]
+    # crop to first 4096 sampling points (2^12)
+    ecg = wfdb.rdsamp(path+address)[0][:4096, :]
     for lead in range(12):
         # create a row vector from a 1D array and fit data to MTF, downscale data to 512 points
         mtf = MarkovTransitionField(image_size=size, strategy='uniform').fit_transform(ecg[:, lead].reshape(1, -1))

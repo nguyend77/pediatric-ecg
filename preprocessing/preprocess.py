@@ -8,13 +8,13 @@ df = pd.read_csv('ecg_data.csv')
 # path to Child_ecg folder
 path = 'data/Child_ecg/'
 # image size for MTF
-size = 512
+size = 256
 
 def retrieve_mtf(address):
     # use float32 to save 50% memmory
     arr = np.zeros((size, size, 12), dtype=np.float32)
-    # crop to first 4096 sampling points (2^12)
-    ecg = wfdb.rdsamp(path+address)[0][:10240, :]
+    # crop to get uniform inputs
+    ecg = wfdb.rdsamp(path+address)[0][:5120, :]
     for lead in range(12):
         # create a row vector from a 1D array and fit data to MTF, downscale data to 256 points
         mtf = MarkovTransitionField(image_size=size, strategy='uniform').fit_transform(ecg[:, lead].reshape(1, -1))

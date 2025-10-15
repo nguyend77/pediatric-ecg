@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 import wfdb
 from pyts.image import MarkovTransitionField
+from tqdm import tqdm
 
 df = pd.read_csv('ecg_data.csv')
 # path to Child_ecg folder
@@ -22,10 +22,14 @@ def retrieve_mtf(address):
         arr[:, :, lead] = mtf[0]
     return arr
 
-def generator():
-    for index, row in df.iterrows():
-        yield retrieve_mtf(row['Filename']), row['diagnosis']
+# save MTFs as X
+filename = df['Filename'].to_list()
+length = len(filename)
+X = np.memmap('input/X.npy', dtype=np.float32, mode='w+', shape=(length, size, size, 12))
+for i in tqdm(range(length)):
+    X[i] = retrieve_mtf(filename[i])
+X.flush()
+# X = np.memmap('input/X.npy', dtype=np.float32, mode='r', shape=(12314, 256, 256, 12))
 
-signature = (tf.TensorSpec(shape=(size, size, 12), dtype=tf.float32), tf.TensorSpec(shape=(), dtype=tf.float32))
-
-dataset = tf.data.Dataset.from_generator(generator, output_signature=signature)
+# save diagnosis as Y
+np.save('input/Y.npy', df['diagnosis'])

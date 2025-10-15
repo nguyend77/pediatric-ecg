@@ -26,6 +26,7 @@ def retrieve_mtf(address):
 filename = df['Filename'].to_list()
 length = len(filename)
 X = np.memmap('input/X.npy', dtype=np.float32, mode='w+', shape=(length, size, size, 12))
+# add tqdm() for progress bar
 for i in tqdm(range(length)):
     X[i] = retrieve_mtf(filename[i])
 X.flush()

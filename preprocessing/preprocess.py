@@ -34,3 +34,4 @@ X.flush()
 
 # save diagnosis as Y
 np.save('input/Y.npy', df['diagnosis'])
+# Y = np.load('input/Y.npy)
